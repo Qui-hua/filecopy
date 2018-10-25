@@ -1,8 +1,6 @@
 #!/usr/bin/perl -w
 #
-#	CHEN SEI-LIM
-#	2018-10-19
-#
+
 
 my $argc = @ARGV;
 if ($argc < 1) {
@@ -14,31 +12,22 @@ my $fold = $ARGV[0];
 if (!-d $fold) {
 	exit;
 }
-
-chdir $fold;
-
-my @list = `find $fold`;
+#		用find指令來取得全部的檔案結構
+my @list = `find $fold `;
 foreach my $line (@list) {
 	chop $line;
+	#		這是文字檔
 	if (-f $line) {
-#               my $csum = `csum -h MD5 $line`;
-#                print $line,"\n";
-                my $csum = `ls -l  $line `;
+	#		讀取檔案資料
 				my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev, $size1,$atime,$mtime,$ctime,$blksize,$blocks) = stat ($line);
-               # my $text = sprintf 'rcp zh03:%s .', $line;
-#               print $text, "\n";
-                chop $csum;
-                my @size =  split / +/, $csum;
-                my $outline = sprintf ("%12d  %s",$size[4],$line);
-              #  print $outline , "\n";
-                print $size1,"   ",$line , "\n";
-
+                my $outline = sprintf ("%12d  %s",$size1,$line);
+                print $outline , "\n";
 	}
 
 	if (-d $line) {
-		my $text = sprintf 'mkdir %s', $line;
-#		print $text, "\n";
+#		這是資料夾
 	}
+	
 }
 
 __END__
