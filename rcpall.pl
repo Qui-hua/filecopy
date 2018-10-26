@@ -5,6 +5,7 @@
 #
 my $goalhostname='tp02';
 my $hit=0;
+my $pool = {};
 my $argc = @ARGV;
 if ($argc < 2) {
 	printf ("usage: perl %s <dirname> <goaldata>-\n", $0);
@@ -23,30 +24,45 @@ or die "Could not open file '$filename' $!";
 chdir $fold;
 #		用find指令來取得全部的檔案結構
 my @list = `find $fold`;
+foreach my $line (@list) 
+{	
+	chop $line;
+	my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev, $size,$atime,$mtime,$ctime,$blksize,$blocks) = stat ($line);
+	my $hold = {
+				'SIZE' => $size
+			};
+	$pool->{$line} = $hold;
+}
+
+
+
 while (my $fileline= <$fh>)
 {
-	my @filedata =    split(' ', $fileline);  
-	foreach my $line (@list) 
+	chop $fileline;
+	my @filedata =    split(' ', $fileline); 
+	if( exists($pool->{$filedata[1]}) )
 	{
-		chop $line;
-		if($line eq $filedata[1])
+		my $hold = $pool->{$filedata[1]};
+		my $goalsize =  $hold->{SIZE};  
+		my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev, $size,$atime,$mtime,$ctime,$blksize,$blocks) = stat ($filedata[1]);
+		
+		
+		if($size eq $goalsize)
 		{
-			my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev, $size,$atime,$mtime,$ctime,$blksize,$blocks) = stat ($line);
-			if($size eq $filedata[0])
-			{
-				#print "size eq.\n";
-			}
-			else
-			{
-				&FileCopy($filedata[1]);
-			}
+			#print "size eq.\n";
+		}
+		else
+		{
+			&FileCopy($filedata[1]);
 		}
 	}
-	if($hit==0)
+	else
 	{
 			&FileCopy($filedata[1]);
 	}
 }
+
+
 
 sub FileCopy
 {
